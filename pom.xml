@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ JBoss, Home of Professional Open Source.
+  ~ Copyright 2012 Red Hat, Inc., and individual contributors
+  ~ as indicated by the @author tags.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-parent</artifactId>
+        <version>10</version>
+    </parent>
+
+    <groupId>org.wildfly.extension.sdd</groupId>
+    <artifactId>sdd-subsystem-parent</artifactId>
+    <version>1.0.0.Alpha1-SNAPSHOT</version>
+
+    <name>SDD</name>
+    <description>Silly deployment detector subsystem</description>
+
+    <packaging>pom</packaging>
+
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>http://repository.jboss.org/licenses/apache-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git://github.com/undertow-io/undertow.git</connection>
+        <developerConnection>scm:git://github.com/undertow-io/undertow.git</developerConnection>
+        <url>https://github.com/undertow-io/undertow</url>
+    </scm>
+
+    <properties>
+        <!-- Build configuration -->
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <!--
+            Dependency versions. Please keep alphabetical.
+
+            Each version property should be of the form "version.<groupId>".
+            For example: <version.org.jboss.as>
+
+            In cases where multiple artifacts use the same groupId but have different
+            versions, add the artifactId or other qualifier to the property name.
+            For example: <version.org.jboss.as.console>
+         -->
+
+        <version.junit>4.11</version.junit>
+        <version.org.jboss.logging>3.1.3.GA</version.org.jboss.logging>
+        <version.org.jboss.logmanager>1.4.1.Final</version.org.jboss.logmanager>
+        <version.org.jboss.logging.processor>1.1.0.Final</version.org.jboss.logging.processor>
+        <version.wildfly>8.0.0.Alpha1</version.wildfly>
+
+        <!-- Surefire args -->
+        <surefire.jpda.args/>
+        <surefire.system.args>-da ${surefire.jpda.args}</surefire.system.args>
+
+        <!-- Checkstyle configuration -->
+        <linkXRef>false</linkXRef>
+
+        <jboss.home>${env.JBOSS_HOME}</jboss.home>
+        <version.arquillian>1.0.3.Final</version.arquillian>
+        <version.org.jboss.shrinkwrap.descriptors>2.0.0-alpha-4</version.org.jboss.shrinkwrap.descriptors>
+    </properties>
+
+    <modules>
+        <module>extension</module>
+    </modules>
+
+    <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>src/test/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- Checkstyle -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${version.checkstyle.plugin}</version>
+                    <configuration>
+                        <configLocation>jboss-as-checkstyle/checkstyle.xml</configLocation>
+                        <consoleOutput>true</consoleOutput>
+                        <failsOnError>true</failsOnError>
+                        <useFile/>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.wildfly</groupId>
+                            <artifactId>wildfly-build-config</artifactId>
+                            <version>${version.wildfly}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <id>check-style</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>checkstyle</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Modules in this project -->
+
+            <dependency>
+                <groupId>org.wildfly.extension.sdd</groupId>
+                <artifactId>wildfly-sdd</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>jboss-undertow-integrator</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+            </dependency>
+
+
+            <!-- External Dependencies -->
+
+            <dependency>
+                <groupId>org.wildfly</groupId>
+                <artifactId>wildfly-parent</artifactId>
+                <version>${version.wildfly}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wildfly</groupId>
+                <artifactId>wildfly-build</artifactId>
+                <version>${version.wildfly}</version>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.arquillian.junit</groupId>
+                <artifactId>arquillian-junit-container</artifactId>
+                <scope>test</scope>
+                <version>${version.arquillian}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.arquillian.protocol</groupId>
+                <artifactId>arquillian-protocol-servlet</artifactId>
+                <scope>test</scope>
+                <version>${version.arquillian}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>jboss-as-arquillian-container-managed</artifactId>
+                <version>${version.wildfly}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+                <artifactId>shrinkwrap-descriptors-api-base</artifactId>
+                <version>${version.org.jboss.shrinkwrap.descriptors}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
+                <scope>test</scope>
+            </dependency>
+
+         <dependency>
+                <groupId>org.jboss.logging</groupId>
+                <artifactId>jboss-logging</artifactId>
+                <version>${version.org.jboss.logging}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.logging</groupId>
+                <artifactId>jboss-logging-processor</artifactId>
+                <version>${version.org.jboss.logging.processor}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.logmanager</groupId>
+                <artifactId>jboss-logmanager</artifactId>
+                <version>${version.org.jboss.logmanager}</version>
+            </dependency>
+
+
+        </dependencies>
+    </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+
+    <profiles>
+        <profile>
+            <id>update-as</id>
+            <activation>
+                <property>
+                    <name>update-as</name>
+                </property>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>integrate</module>
+                <!--module>testsuite</module-->
+            </modules>
+        </profile>
+    </profiles>
+
+</project>
