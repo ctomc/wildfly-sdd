@@ -17,6 +17,7 @@ public class SDDExtension implements Extension {
 
     public static final String SUBSYSTEM_NAME = "sdd";
     static final PathElement SUBSYSTEM_PATH = PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
+    static final PathElement JAR_BLACKLIST_PATH = PathElement.pathElement("config", "jar-blacklist");
     private static final String RESOURCE_NAME = SDDExtension.class.getPackage().getName() + ".LocalDescriptions";
 
     static StandardResourceDescriptionResolver getResolver(final String... keyPrefix) {

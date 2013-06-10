@@ -45,9 +45,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git://github.com/undertow-io/undertow.git</connection>
-        <developerConnection>scm:git://github.com/undertow-io/undertow.git</developerConnection>
-        <url>https://github.com/undertow-io/undertow</url>
+        <connection>scm:https://github.com/ctomc/wildfly-sdd.git</connection>
+        <developerConnection>scm:https://github.com/ctomc/wildfly-sdd.git</developerConnection>
+        <url>https://github.com/ctomc/wildfly-sdd.git</url>
     </scm>
 
     <properties>
@@ -149,13 +149,6 @@
                 <groupId>org.wildfly.extension.sdd</groupId>
                 <artifactId>wildfly-sdd</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.undertow</groupId>
-                <artifactId>jboss-undertow-integrator</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
             </dependency>
 
 

@@ -22,6 +22,7 @@
 
 package org.wildfly.extension.sdd;
 
+import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
 import java.util.List;
@@ -48,6 +49,13 @@ class SDDSubsystemParser implements XMLStreamConstants, XMLElementReader<List<Mo
 
     public void writeContent(XMLExtendedStreamWriter writer, SubsystemMarshallingContext context) throws XMLStreamException {
         context.startSubsystemElement(Namespace.CURRENT.getUriString(), false);
+        ModelNode model = context.getModelNode();
+        ModelNode blackListModel = model.get(SDDExtension.JAR_BLACKLIST_PATH.getKeyValuePair());
+        if (blackListModel.isDefined()) {
+            writer.writeStartElement("blacklist");
+            JarBlackListResourceDefinition.JAR_NAMES.getAttributeMarshaller().marshallAsAttribute(JarBlackListResourceDefinition.JAR_NAMES, blackListModel, false, writer);
+            writer.writeEndElement();
+        }
         writer.writeEndElement();
     }
 
@@ -63,9 +71,13 @@ class SDDSubsystemParser implements XMLStreamConstants, XMLElementReader<List<Mo
             switch (Namespace.forUri(reader.getNamespaceURI())) {
                 case SDD_1_0: {
                     switch (reader.getLocalName()) {
-                            /*case MAIL_SESSION: {
-                                break;
-                            } */
+                        case "blacklist": {
+                            ModelNode op = Util.createAddOperation(address.append(SDDExtension.JAR_BLACKLIST_PATH));
+                            String value = readStringAttributeElement(reader, "jars");
+                            JarBlackListResourceDefinition.JAR_NAMES.parseAndAddParameterElement(value, op, reader);
+                            list.add(op);
+                            break;
+                        }
                         default: {
                             reader.handleAny(list);
                             break;

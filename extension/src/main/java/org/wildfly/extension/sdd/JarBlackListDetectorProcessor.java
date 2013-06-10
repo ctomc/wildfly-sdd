@@ -2,7 +2,6 @@ package org.wildfly.extension.sdd;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.jboss.as.server.deployment.Attachments;
@@ -26,6 +25,11 @@ public class JarBlackListDetectorProcessor implements DeploymentUnitProcessor {
     private static final String WEB_INF_LIB = "WEB-INF/lib";
     private static final String EAR_LIB = "lib";
     private static final VirtualFileFilter JAR_FILTER = new SuffixMatchFilter(".jar", VisitorAttributes.DEFAULT);
+    private final List<String> blackList;
+
+    public JarBlackListDetectorProcessor(List<String> blacklist) {
+        this.blackList = blacklist;
+    }
 
     @Override
     public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
@@ -34,7 +38,7 @@ public class JarBlackListDetectorProcessor implements DeploymentUnitProcessor {
 
         List<VirtualFile> jars = getJarList(deploymentRoot.getRoot());
         try {
-            processBlackList(jars, "mail-*.jar", "activation*.jar", "javassist-*.jar", "jgroups-*.jar", "jboss-logging-*.jar");
+            processBlackList(jars);
         } catch (IOException e) {
             SDDLogger.ROOT_LOGGER.couldNotProcessBlacklist(e);
         }
@@ -72,8 +76,8 @@ public class JarBlackListDetectorProcessor implements DeploymentUnitProcessor {
         return entries;
     }
 
-    private void processBlackList(final List<VirtualFile> jars, String... blackList) throws IOException {
-        SDDLogger.ROOT_LOGGER.infof("blacklist: %s", Arrays.asList(blackList));
+    private void processBlackList(final List<VirtualFile> jars) throws IOException {
+        SDDLogger.ROOT_LOGGER.infof("blacklist: %s", blackList);
         for (String blackListed : blackList) {
             PathFilter filter = PathFilters.match(blackListed);
             for (VirtualFile jar : jars) {

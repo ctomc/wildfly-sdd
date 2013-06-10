@@ -253,7 +253,9 @@
             </security-domains>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:threads:1.1"/>
-        <subsystem xmlns="urn:wildfly:domain:sdd:1.0"/>
+        <subsystem xmlns="urn:wildfly:domain:sdd:1.0">
+            <blacklist jars="mail-*.jar,activation*.jar,javassist-*.jar,jgroups-*.jar,jboss-logging-*.jar"/>
+        </subsystem>
         <subsystem xmlns="urn:jboss:domain:transactions:1.3">
             <core-environment>
                 <process-id>
