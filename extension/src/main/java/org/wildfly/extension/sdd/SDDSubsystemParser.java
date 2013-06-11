@@ -74,7 +74,7 @@ class SDDSubsystemParser implements XMLStreamConstants, XMLElementReader<List<Mo
                         case "blacklist": {
                             ModelNode op = Util.createAddOperation(address.append(SDDExtension.JAR_BLACKLIST_PATH));
                             String value = readStringAttributeElement(reader, "jars");
-                            JarBlackListResourceDefinition.JAR_NAMES.parseAndAddParameterElement(value, op, reader);
+                            JarBlackListResourceDefinition.JAR_NAMES.parseAndSetParameter(value, op, reader);
                             list.add(op);
                             break;
                         }

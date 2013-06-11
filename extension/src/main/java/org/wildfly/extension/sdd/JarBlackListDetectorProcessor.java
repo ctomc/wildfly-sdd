@@ -29,6 +29,7 @@ public class JarBlackListDetectorProcessor implements DeploymentUnitProcessor {
 
     public JarBlackListDetectorProcessor(List<String> blacklist) {
         this.blackList = blacklist;
+        SDDLogger.ROOT_LOGGER.infof("Blacklist: %s", blacklist);
     }
 
     @Override
@@ -77,7 +78,6 @@ public class JarBlackListDetectorProcessor implements DeploymentUnitProcessor {
     }
 
     private void processBlackList(final List<VirtualFile> jars) throws IOException {
-        SDDLogger.ROOT_LOGGER.infof("blacklist: %s", blackList);
         for (String blackListed : blackList) {
             PathFilter filter = PathFilters.match(blackListed);
             for (VirtualFile jar : jars) {
