@@ -22,15 +22,14 @@
 
 package org.wildfly.extension.sdd;
 
-import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
-import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
+import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
 
 import java.util.List;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.operations.common.Util;
+import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLElementReader;
@@ -43,53 +42,34 @@ import org.jboss.staxmapper.XMLExtendedStreamWriter;
  */
 class SDDSubsystemParser implements XMLStreamConstants, XMLElementReader<List<ModelNode>>, XMLElementWriter<SubsystemMarshallingContext> {
     protected static final SDDSubsystemParser INSTANCE = new SDDSubsystemParser();
+    private static final PersistentResourceXMLDescription xmlDescription;
 
-    private SDDSubsystemParser() {
+    static {
+        xmlDescription = builder(SDDRootResource.INSTANCE)
+                .addChild(
+                        builder(JarBlackListResourceDefinition.INSTANCE)
+                                .addAttribute(JarBlackListResourceDefinition.JAR_NAMES)
+                )
+                .build();
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void writeContent(XMLExtendedStreamWriter writer, SubsystemMarshallingContext context) throws XMLStreamException {
-        context.startSubsystemElement(Namespace.CURRENT.getUriString(), false);
-        ModelNode model = context.getModelNode();
-        ModelNode blackListModel = model.get(SDDExtension.JAR_BLACKLIST_PATH.getKeyValuePair());
-        if (blackListModel.isDefined()) {
-            writer.writeStartElement("blacklist");
-            JarBlackListResourceDefinition.JAR_NAMES.getAttributeMarshaller().marshallAsAttribute(JarBlackListResourceDefinition.JAR_NAMES, blackListModel, false, writer);
-            writer.writeEndElement();
-        }
-        writer.writeEndElement();
+        ModelNode model = new ModelNode();
+        model.get(SDDRootResource.INSTANCE.getPathElement().getKeyValuePair()).set(context.getModelNode());//this is bit of workaround for SPRD to work properly
+        xmlDescription.persist(writer, model, Namespace.CURRENT.getUriString());
     }
 
     /**
      * {@inheritDoc}
      */
-
+    @Override
     public void readElement(XMLExtendedStreamReader reader, List<ModelNode> list) throws XMLStreamException {
-        final PathAddress address = PathAddress.pathAddress(SDDExtension.SUBSYSTEM_PATH);
-        list.add(Util.createAddOperation(address));
-
-        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            switch (Namespace.forUri(reader.getNamespaceURI())) {
-                case SDD_1_0: {
-                    switch (reader.getLocalName()) {
-                        case "blacklist": {
-                            ModelNode op = Util.createAddOperation(address.append(SDDExtension.JAR_BLACKLIST_PATH));
-                            String value = readStringAttributeElement(reader, "jars");
-                            JarBlackListResourceDefinition.JAR_NAMES.parseAndSetParameter(value, op, reader);
-                            list.add(op);
-                            break;
-                        }
-                        default: {
-                            reader.handleAny(list);
-                            break;
-                        }
-                    }
-                    break;
-                }
-                default: {
-                    throw unexpectedElement(reader);
-                }
-            }
-        }
+        xmlDescription.parse(reader, PathAddress.EMPTY_ADDRESS, list);
     }
 }
 

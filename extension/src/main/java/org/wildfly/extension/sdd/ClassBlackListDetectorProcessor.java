@@ -1,7 +1,6 @@
 package org.wildfly.extension.sdd;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.as.server.deployment.Attachments;
@@ -9,7 +8,9 @@ import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
+import org.jboss.as.server.deployment.module.ModuleSpecification;
 import org.jboss.as.server.deployment.module.ResourceRoot;
+import org.jboss.as.server.moduleservice.ServiceModuleLoader;
 import org.jboss.modules.filter.PathFilter;
 import org.jboss.modules.filter.PathFilters;
 import org.jboss.vfs.VirtualFile;
@@ -29,18 +30,23 @@ public class ClassBlackListDetectorProcessor implements DeploymentUnitProcessor 
 
     public ClassBlackListDetectorProcessor(List<String> blacklist) {
         this.blackList = blacklist;
-        SDDLogger.ROOT_LOGGER.infof("Blacklist: %s", blacklist);
+        SDDLogger.ROOT_LOGGER.infof("Class blacklist: %s", blacklist);
     }
 
     @Override
     public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
+        final ServiceModuleLoader moduleLoader = deploymentUnit.getAttachment(Attachments.SERVICE_MODULE_LOADER);
+        final ModuleSpecification moduleSpecification = deploymentUnit.getAttachment(Attachments.MODULE_SPECIFICATION);
+        List<ResourceRoot> resourceRoots = deploymentUnit.getAttachmentList(Attachments.RESOURCE_ROOTS);
 
 
-        List< VirtualFile > jars = getJarList(deploymentRoot.getRoot());
+        //List<VirtualFile> jars = getJarList(deploymentRoot.getRoot());
+
+
         try {
-            processBlackList(jars);
+            processBlackList(resourceRoots);
         } catch (IOException e) {
             SDDLogger.ROOT_LOGGER.couldNotProcessBlacklist(e);
         }
@@ -59,7 +65,7 @@ public class ClassBlackListDetectorProcessor implements DeploymentUnitProcessor 
         return l;
     }*/
 
-    private List<VirtualFile> getJarList(final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
+   /* private List<VirtualFile> getJarList(final VirtualFile deploymentRoot) throws DeploymentUnitProcessingException {
         final List<VirtualFile> entries = new ArrayList<>();
         // WEB-INF lib
         final VirtualFile webinfLib = deploymentRoot.getChild(WEB_INF_LIB);
@@ -83,13 +89,13 @@ public class ClassBlackListDetectorProcessor implements DeploymentUnitProcessor 
             throw new DeploymentUnitProcessingException("Could get get jar list!", e);
         }
         return entries;
-    }
+    }*/
 
-    private void processBlackList(final List<VirtualFile> jars) throws IOException {
+    private void processBlackList(final List<ResourceRoot> jars) throws IOException {
         for (String blackListed : blackList) {
             PathFilter filter = PathFilters.match(blackListed);
-            for (VirtualFile jar : jars) {
-
+            for (ResourceRoot root : jars) {
+                VirtualFile jar = root.getRoot();
                 SDDLogger.ROOT_LOGGER.tracef("Processing jar %s, matches: %s", jar.getName(), filter.accept(jar.getName()));
 
                 if (filter.accept(jar.getName())) {

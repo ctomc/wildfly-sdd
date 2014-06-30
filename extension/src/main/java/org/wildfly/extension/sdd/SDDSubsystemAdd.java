@@ -29,13 +29,13 @@ public class SDDSubsystemAdd extends AbstractBoottimeAddStepHandler {
         SDDLogger.ROOT_LOGGER.subsystemStarted();
 
         context.addStep(new AbstractDeploymentChainStep() {
-                   @Override
-                   protected void execute(DeploymentProcessorTarget processorTarget) {
+            @Override
+            protected void execute(DeploymentProcessorTarget processorTarget) {
 
-                       processorTarget.addDeploymentProcessor(SDDExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_WEB_DEPLOYMENT, new ClassBlackListDetectorProcessor(Arrays.asList("javax/servlet","javax/activation")));
+                processorTarget.addDeploymentProcessor(SDDExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_WEB_DEPLOYMENT + 5, new ClassBlackListDetectorProcessor(Arrays.asList("javax/servlet", "javax/activation")));
 
 
-                   }
-               }, OperationContext.Stage.RUNTIME);
+            }
+        }, OperationContext.Stage.RUNTIME);
     }
 }
