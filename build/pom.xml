@@ -35,77 +35,84 @@
     </parent>
 
 
-    <artifactId>extension-integrator</artifactId>
+    <artifactId>build</artifactId>
 
-    <name>WildFly AS : integrator</name>
+    <name>WildFly AS : build</name>
     <packaging>pom</packaging>
 
+
     <properties>
-        <version.rhino.js>1.7R2</version.rhino.js>
-        <version.org.jboss.jandex>1.0.3.Final</version.org.jboss.jandex>
-        <version.org.apache.ant>1.8.2</version.org.apache.ant>
         <!-- generated configs root dirs -->
         <generated.configs>${basedir}/target/generated-configs</generated.configs>
         <generated.configs.standalone>${generated.configs}/standalone/configuration</generated.configs.standalone>
         <generated.configs.domain>${generated.configs}/domain/configuration</generated.configs.domain>
-        <generated.configs.examples>${generated.configs}/docs/examples/configs</generated.configs.examples>
         <generated.configs.src.dir>${basedir}/src/main/resources</generated.configs.src.dir>
+        <server.dir>${basedir}/src/main/resources</server.dir>
+        <dist.prefix>wildfly-sdd</dist.prefix>
     </properties>
 
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-
-                    <execution>
-                        <id>build-dist</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <property name="ant.jboss.home" value="${wildfly.home}"/>
-                                <ant antfile="build.xml" inheritRefs="true">
-                                    <target name="all"/>
-                                </ant>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jboss</groupId>
-                        <artifactId>jandex</artifactId>
-                        <version>${version.org.jboss.jandex}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-apache-bsf</artifactId>
-                        <version>${version.org.apache.ant}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>rhino</groupId>
-                        <artifactId>js</artifactId>
-                        <version>${version.rhino.js}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
-
+        <dependency>
+            <groupId>org.wildfly</groupId>
+            <artifactId>wildfly-web-build</artifactId>
+            <version>9.0.0.Alpha1-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.wildfly.extension.sdd</groupId>
             <artifactId>wildfly-sdd</artifactId>
         </dependency>
-
-
     </dependencies>
+
+    <build>
+        <finalName>${dist.prefix}-${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions></executions>
+            </plugin>
+            <plugin>
+                <groupId>org.wildfly.core</groupId>
+                <artifactId>wildfly-build-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-server</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <config-file>server-build.xml</config-file>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assemble</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>web-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <outputDirectory>target/</outputDirectory>
+                            <workDirectory>target/assembly/work</workDirectory>
+                            <tarLongFileMode>gnu</tarLongFileMode>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
