@@ -55,7 +55,7 @@
         <dependency>
             <groupId>org.wildfly</groupId>
             <artifactId>wildfly-web-build</artifactId>
-            <version>9.0.0.Alpha1-SNAPSHOT</version>
+            <version>${version.wildfly}</version>
             <type>zip</type>
         </dependency>
         <dependency>

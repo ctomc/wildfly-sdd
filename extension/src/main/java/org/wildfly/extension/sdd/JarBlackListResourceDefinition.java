@@ -2,15 +2,13 @@ package org.wildfly.extension.sdd;
 
 import java.util.Collection;
 import java.util.Collections;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.DefaultAttributeMarshaller;
+import org.jboss.as.controller.AttributeMarshaller;
+import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.StringListAttributeDefinition;
-import org.jboss.dmr.ModelNode;
 
 /**
  * @author Tomaz Cerar (c) 2013 Red Hat Inc.
@@ -19,25 +17,8 @@ class JarBlackListResourceDefinition extends PersistentResourceDefinition {
 
     static final StringListAttributeDefinition JAR_NAMES = new StringListAttributeDefinition.Builder("jars")
             .setAllowNull(false)
-            .setAttributeMarshaller(new DefaultAttributeMarshaller() {
-                @Override
-                public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws
-                        XMLStreamException {
-
-                    StringBuilder builder = new StringBuilder();
-                    if (resourceModel.hasDefined(attribute.getName())) {
-                        for (ModelNode p : resourceModel.get(attribute.getName()).asList()) {
-                            builder.append(p.asString()).append(", ");
-                        }
-                    }
-                    if (builder.length() > 3) {
-                        builder.setLength(builder.length() - 2);
-                    }
-                    if (builder.length() > 0) {
-                        writer.writeAttribute(attribute.getXmlName(), builder.toString());
-                    }
-                }
-            })
+            .setAttributeMarshaller(AttributeMarshaller.COMMA_STRING_LIST)
+            .setAttributeParser(AttributeParser.COMMA_DELIMITED_STRING_LIST)
             .build();
 
     static final JarBlackListResourceDefinition INSTANCE = new JarBlackListResourceDefinition();
