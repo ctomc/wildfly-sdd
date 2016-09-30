@@ -44,8 +44,6 @@ public interface SDDLogger extends BasicLogger {
      */
     SDDLogger ROOT_LOGGER = Logger.getMessageLogger(SDDLogger.class, SDDLogger.class.getPackage().getName());
 
-    ////////////////////////////////////////////////////////////
-    //18200-18226 are copied across from the old web subsystem
 
     @LogMessage(level = INFO)
     @Message(id = 1, value = "Starting Silly Deployment Detector subsystem")
